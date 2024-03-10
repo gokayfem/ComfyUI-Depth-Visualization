@@ -27,6 +27,8 @@ class DepthViewer:
     FUNCTION = "process_images"
     CATEGORY = "DepthViewer"
     def process_images(self, reference_image, depth_map):
+        self.saved_reference.clear()
+        self.saved_depth.clear()
         image = reference_image[0].detach().cpu().numpy()
         depth = depth_map[0].detach().cpu().numpy()
 
@@ -56,6 +58,7 @@ class DepthViewer:
                 "subfolder": self.subfolder,
                 "type": "output"
             })
+            self.counter += 1
 
         return {"ui": {"reference_image": self.saved_reference, "depth_map": self.saved_depth}}
     
