@@ -89,3 +89,31 @@ a, button, input, select {
 	margin-top: 20px;
 	padding: 10px;
 }
+
+#screenshotButton {
+    position: absolute;
+    bottom: 10px; /* Adjust as needed */
+    left: 10px; /* Position to the left */
+    z-index: 10; /* Ensure this is above the canvas's z-index */
+    padding: 5px 5px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(145deg, #007bff, #0056b3);
+    color: #ffffff;
+    font-size: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+#screenshotButton:hover {
+    background: linear-gradient(145deg, #0056b3, #007bff);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+#screenshotButton:active {
+    background: #0056b3;
+    transform: translateY(1px);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+}

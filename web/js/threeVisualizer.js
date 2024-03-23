@@ -174,4 +174,16 @@ if (referenceTexture && depthTexture) {
     frameUpdate();
 }
 
+document.getElementById('screenshotButton').addEventListener('click', takeScreenshot);
+
+function takeScreenshot() {
+    renderer.render(scene, camera);
+    const dataURL = renderer.domElement.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = "screenshot.png";
+    link.click();
+    console.log("Screenshot taken");
+}
+
 main();
