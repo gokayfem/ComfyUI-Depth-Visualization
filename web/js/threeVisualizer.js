@@ -79,6 +79,8 @@ const onError = function (e) {
 
 async function main(referenceImageParams, depthMapParams) {
     let referenceTexture, depthTexture;
+    let imageWidth = 10; // Default width
+    let imageHeight = 10; // Default height, will be updated based on the image's aspect ratio
 
     if (referenceImageParams?.filename) {
         const referenceImageUrl = api.apiURL('/view?' + new URLSearchParams(referenceImageParams)).replace(/extensions.*\//, "");
@@ -86,7 +88,14 @@ async function main(referenceImageParams, depthMapParams) {
 
         if (referenceImageExt === "png" || referenceImageExt === "jpg" || referenceImageExt === "jpeg") {
             const referenceImageLoader = new THREE.TextureLoader();
-            referenceTexture = await referenceImageLoader.loadAsync(referenceImageUrl);
+            referenceTexture = await new Promise((resolve, reject) => {
+                referenceImageLoader.load(referenceImageUrl, (texture) => {
+                    // Once the image is loaded, update the width and height based on the image's aspect ratio
+                    imageWidth = 10; // Keep the width as 10
+                    imageHeight = texture.image.height / (texture.image.width / 10);
+                    resolve(texture);
+                }, undefined, reject);
+            });
         }
     }
 
@@ -94,15 +103,14 @@ async function main(referenceImageParams, depthMapParams) {
         const depthMapUrl = api.apiURL('/view?' + new URLSearchParams(depthMapParams)).replace(/extensions.*\//, "");
         const depthMapExt = depthMapParams.filename.slice(depthMapParams.filename.lastIndexOf(".") + 1);
 
-
-    if (depthMapExt === "png" || depthMapExt === "jpg" || depthMapExt === "jpeg") {
-        const depthMapLoader = new THREE.TextureLoader();
-        depthTexture = await depthMapLoader.loadAsync(depthMapUrl);
+        if (depthMapExt === "png" || depthMapExt === "jpg" || depthMapExt === "jpeg") {
+            const depthMapLoader = new THREE.TextureLoader();
+            depthTexture = await depthMapLoader.loadAsync(depthMapUrl);
+        }
     }
-}
 
-if (referenceTexture && depthTexture) {
-    const depthMaterial = new THREE.ShaderMaterial({
+    if (referenceTexture && depthTexture) {
+        const depthMaterial = new THREE.ShaderMaterial({
         uniforms: {
             referenceTexture: { value: referenceTexture },
             depthTexture: { value: depthTexture },
@@ -153,13 +161,8 @@ if (referenceTexture && depthTexture) {
         `
     });
     
-
-        const aspect = window.innerWidth / window.innerHeight;
-        const planeWidth = 10;
-        const planeHeight = planeWidth / aspect;
         
-        const planeGeometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 200, 200);
-        //add double side three js plane geometry
+        const planeGeometry = new THREE.PlaneGeometry(imageWidth, imageHeight, 200, 200);
         const depthMesh = new THREE.Mesh(planeGeometry, depthMaterial);
         scene.add(depthMesh);
     }
