@@ -9,7 +9,7 @@ dependencies = ["Pillow>=10.1.0"]
 Repository = "https://github.com/haohaocreates/PR-ComfyUI-Depth-Visualization-5b6de467"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "gokayfem"
 DisplayName = "PR-ComfyUI-Depth-Visualization-5b6de467"
 Icon = ""
 Models = [{location = "/checkpoints/model.safetensor", model_url = "https://example.com/model.zip"}]
