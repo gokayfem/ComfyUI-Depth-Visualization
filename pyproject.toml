@@ -1,0 +1,15 @@
+[project]
+name = "pr-comfyui-depth-visualization-5b6de467"
+description = ""
+version = "1.0.0"
+license = "LICENSE"
+dependencies = ["Pillow>=10.1.0"]
+
+[project.urls]
+Repository = "https://github.com/haohaocreates/PR-ComfyUI-Depth-Visualization-5b6de467"
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "PR-ComfyUI-Depth-Visualization-5b6de467"
+Icon = ""
+Models = [{location = "/checkpoints/model.safetensor", model_url = "https://example.com/model.zip"}]
