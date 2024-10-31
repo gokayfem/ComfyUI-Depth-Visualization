@@ -11,6 +11,14 @@ class Visualizer {
         })
         this.iframe.src = "/extensions/ComfyUI-Depth-Visualization/html/" + visualSrc + ".html"
         container.appendChild(this.iframe)
+
+        // Wait for the iframe to load, then initialize it with the API URL
+        this.iframe.onload = () => {
+            this.iframe.contentWindow.postMessage({
+                type: 'init',
+                apiURL: app.getApiUrl() // Assuming app.getApiUrl() exists and returns the API URL
+            }, '*')
+        }
     }
 
     updateVisual(params) {
@@ -18,7 +26,12 @@ class Visualizer {
         const previewScript = iframeDocument.getElementById('visualizer');
         previewScript.setAttribute("reference_image", JSON.stringify(params.reference_image));
         previewScript.setAttribute("depth_map", JSON.stringify(params.depth_map));
-        // Update the reference image and depth map
+        // Trigger the update in the iframe
+        this.iframe.contentWindow.postMessage({
+            type: 'update',
+            referenceImage: params.reference_image,
+            depthMap: params.depth_map
+        }, '*')
     }
 
     remove() {

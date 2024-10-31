@@ -1,8 +1,17 @@
 import * as THREE from 'three';
-import { api } from '../../../scripts/api.js';
-
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+let apiURL = '';
+
+// Listen for messages from the parent window
+window.addEventListener('message', function(event) {
+    if (event.data.type === 'init') {
+        apiURL = event.data.apiURL;
+    } else if (event.data.type === 'update') {
+        main(event.data.referenceImage, event.data.depthMap);
+    }
+}, false);
 
 const visualizer = document.getElementById("visualizer");
 const container = document.getElementById("container");
@@ -83,7 +92,7 @@ async function main(referenceImageParams, depthMapParams) {
     let imageHeight = 10; // Default height, will be updated based on the image's aspect ratio
 
     if (referenceImageParams?.filename) {
-        const referenceImageUrl = api.apiURL('/view?' + new URLSearchParams(referenceImageParams)).replace(/extensions.*\//, "");
+        const referenceImageUrl = `${apiURL}/view?` + new URLSearchParams(referenceImageParams).toString();
         const referenceImageExt = referenceImageParams.filename.slice(referenceImageParams.filename.lastIndexOf(".") + 1);
 
         if (referenceImageExt === "png" || referenceImageExt === "jpg" || referenceImageExt === "jpeg") {
@@ -100,7 +109,7 @@ async function main(referenceImageParams, depthMapParams) {
     }
 
     if (depthMapParams?.filename) {
-        const depthMapUrl = api.apiURL('/view?' + new URLSearchParams(depthMapParams)).replace(/extensions.*\//, "");
+        const depthMapUrl = `${apiURL}/view?` + new URLSearchParams(depthMapParams).toString();
         const depthMapExt = depthMapParams.filename.slice(depthMapParams.filename.lastIndexOf(".") + 1);
 
         if (depthMapExt === "png" || depthMapExt === "jpg" || depthMapExt === "jpeg") {
@@ -188,5 +197,3 @@ function takeScreenshot() {
     link.click();
     console.log("Screenshot taken");
 }
-
-main();
