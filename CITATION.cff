@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use ComfyUI Depth Visualization in your work, please cite it using the metadata below."
+type: software
+title: "ComfyUI Depth Visualization"
+version: "2.0.0"
+date-released: 2026-07-28
+authors:
+  - family-names: "Aydoğan"
+    given-names: "Gökay"
+    orcid: "https://orcid.org/0000-0002-2343-9433"
+abstract: "An interactive, batch-aware depth-map visualization and mesh-export extension for ComfyUI."
+keywords:
+  - ComfyUI
+  - depth map
+  - 3D visualization
+  - mesh export
+  - computer vision
+license: GPL-3.0-only
+repository-code: "https://github.com/gokayfem/ComfyUI-Depth-Visualization"
+url: "https://github.com/gokayfem/ComfyUI-Depth-Visualization"

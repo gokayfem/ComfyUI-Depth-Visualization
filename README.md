@@ -54,6 +54,26 @@ pytest -q
 The browser assets are vendored from Three.js 0.185.1. Its MIT license is in
 `web/vendor/THREE-LICENSE.txt`.
 
+<details>
+<summary><strong>Cite this project</strong></summary>
+
+If ComfyUI Depth Visualization supports your work, please cite the software.
+GitHub also provides ready-to-copy APA and BibTeX entries via **Cite this repository**.
+
+```bibtex
+@software{Aydogan_ComfyUI_Depth_Visualization_2026,
+  author  = {Aydoğan, Gökay},
+  title   = {ComfyUI Depth Visualization},
+  version = {2.0.0},
+  year    = {2026},
+  url     = {https://github.com/gokayfem/ComfyUI-Depth-Visualization}
+}
+```
+
+[ORCID](https://orcid.org/0000-0002-2343-9433) · [Citation metadata](CITATION.cff)
+
+</details>
+
 ## Acknowledgements
 
 The original viewer was inspired by
