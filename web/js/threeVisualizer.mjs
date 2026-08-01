@@ -3,7 +3,7 @@ import { OrbitControls } from "../vendor/OrbitControls.mjs";
 import { GLTFExporter } from "../vendor/GLTFExporter.mjs";
 import { OBJExporter } from "../vendor/OBJExporter.mjs";
 
-const SOURCE = "gokayfem.depth-visualization";
+const SOURCE = "gokayfem.depth-visualization.viewer";
 const container = document.querySelector("#canvas-container");
 const statusElement = document.querySelector("#status");
 const errorElement = document.querySelector("#error");
@@ -43,6 +43,8 @@ let mesh = null;
 let updateVersion = 0;
 let animationFrame = null;
 let disposed = false;
+let contextLost = false;
+let inViewport = true;
 
 function setStatus(message) {
     statusElement.textContent = message;
@@ -157,7 +159,10 @@ async function showFrame(index) {
         const aspect = image.width / Math.max(image.height, 1);
         const width = 7;
         const height = width / aspect;
-        const geometry = new THREE.PlaneGeometry(width, height, 256, 256);
+        const targetSegments = Number(document.querySelector("#mesh-quality").value);
+        const segmentsX = Math.max(8, Math.min(targetSegments, image.width - 1));
+        const segmentsY = Math.max(8, Math.min(Math.round(targetSegments / aspect), image.height - 1));
+        const geometry = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY);
         const material = new THREE.MeshStandardMaterial({
             map: referenceTexture,
             displacementMap: depthTexture,
@@ -166,6 +171,7 @@ async function showFrame(index) {
             roughness: 0.95,
             metalness: 0,
             side: THREE.DoubleSide,
+            wireframe: document.querySelector("#wireframe").checked,
         });
         mesh = new THREE.Mesh(geometry, material);
         scene.add(mesh);
@@ -292,11 +298,26 @@ function animate() {
         return;
     }
     animationFrame = requestAnimationFrame(animate);
-    if (document.visibilityState === "visible") {
+    if (document.visibilityState === "visible" && inViewport && !contextLost) {
         controls.update();
         renderer.render(scene, camera);
     }
 }
+
+const intersectionObserver = new IntersectionObserver(([entry]) => {
+    inViewport = entry?.isIntersecting ?? true;
+});
+intersectionObserver.observe(container);
+renderer.domElement.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    contextLost = true;
+    setError("The browser paused this WebGL context. It will recover automatically.");
+});
+renderer.domElement.addEventListener("webglcontextrestored", () => {
+    contextLost = false;
+    setStatus("WebGL restored; rebuilding depth preview…");
+    void showFrame(Number(batchSelect.value || 0));
+});
 animate();
 
 batchSelect.addEventListener("change", () => {
@@ -308,6 +329,15 @@ depthScale.addEventListener("input", () => {
     if (mesh) {
         mesh.material.displacementScale = value;
         mesh.material.displacementBias = -value / 2;
+    }
+});
+document.querySelector("#mesh-quality").addEventListener("change", () => {
+    void showFrame(Number(batchSelect.value || 0));
+});
+document.querySelector("#wireframe").addEventListener("change", (event) => {
+    if (mesh) {
+        mesh.material.wireframe = event.target.checked;
+        mesh.material.needsUpdate = true;
     }
 });
 document.querySelector("#reset-camera").addEventListener("click", resetCamera);
@@ -337,12 +367,14 @@ window.addEventListener("message", (event) => {
     }
     if (event.data.type === "initialize") {
         viewUrl = event.data.viewUrl;
+        setStatus("Viewer connected — queue image and depth inputs to begin.");
     } else if (event.data.type === "update") {
         setOutput(event.data.output);
     } else if (event.data.type === "dispose") {
         disposed = true;
         updateVersion += 1;
         cancelAnimationFrame(animationFrame);
+        intersectionObserver.disconnect();
         removeMesh();
         controls.dispose();
         renderer.dispose();

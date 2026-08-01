@@ -90,6 +90,12 @@ body,
     font-variant-numeric: tabular-nums;
 }
 
+.checkbox {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
 button,
 select {
     min-height: 2rem;
