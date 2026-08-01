@@ -9,8 +9,24 @@ import folder_paths
 import numpy as np
 from PIL import Image
 
+try:
+    from .depth_nodes import (
+        NODE_CLASS_MAPPINGS as TOOL_NODE_CLASS_MAPPINGS,
+        NODE_DISPLAY_NAME_MAPPINGS as TOOL_NODE_DISPLAY_NAME_MAPPINGS,
+    )
+except (ImportError, ModuleNotFoundError):  # Standalone import used by pytest.
+    from depth_nodes import (  # type: ignore[no-redef]
+        NODE_CLASS_MAPPINGS as TOOL_NODE_CLASS_MAPPINGS,
+        NODE_DISPLAY_NAME_MAPPINGS as TOOL_NODE_DISPLAY_NAME_MAPPINGS,
+    )
 
-def _as_pil(image: Any, *, grayscale: bool = False) -> Image.Image:
+
+def _as_pil(
+    image: Any,
+    *,
+    grayscale: bool = False,
+    bit_depth: int = 8,
+) -> Image.Image:
     """Convert one ComfyUI IMAGE tensor to a web-safe PIL image."""
     array = image.detach().cpu().float().numpy()
     array = np.nan_to_num(array, nan=0.0, posinf=1.0, neginf=0.0)
@@ -27,6 +43,10 @@ def _as_pil(image: Any, *, grayscale: bool = False) -> Image.Image:
     else:
         raise ValueError(f"Expected an HxW, HxWx1, or HxWx3+ image, got {array.shape}.")
 
+    if grayscale and bit_depth == 16:
+        if mode == "RGB":
+            array = array[..., 0] * 0.2126 + array[..., 1] * 0.7152 + array[..., 2] * 0.0722
+        return Image.fromarray((array * 65535.0).round().astype(np.uint16))
     converted = Image.fromarray((array * 255.0).round().astype(np.uint8), mode=mode)
     return converted.convert("L" if grayscale else "RGB")
 
@@ -75,7 +95,8 @@ class DepthViewer:
             }
         }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES = ("IMAGE", "IMAGE")
+    RETURN_NAMES = ("reference_passthrough", "depth_passthrough")
     OUTPUT_NODE = True
     FUNCTION = "process_images"
     CATEGORY = "visualization/3D"
@@ -98,6 +119,7 @@ class DepthViewer:
             depth = _as_pil(
                 _batch_item(depth_map, index, batch_count, "depth_map"),
                 grayscale=True,
+                bit_depth=16,
             )
             references.append(
                 _save_image(
@@ -116,11 +138,17 @@ class DepthViewer:
                 )
             )
 
-        return {"ui": {"reference_image": references, "depth_map": depths}}
+        return {
+            "ui": {"reference_image": references, "depth_map": depths},
+            "result": (reference_image, depth_map),
+        }
 
 
-NODE_CLASS_MAPPINGS = {"DepthViewer": DepthViewer}
-NODE_DISPLAY_NAME_MAPPINGS = {"DepthViewer": "Depth Viewer"}
+NODE_CLASS_MAPPINGS = {"DepthViewer": DepthViewer, **TOOL_NODE_CLASS_MAPPINGS}
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "DepthViewer": "Depth Viewer Pro",
+    **TOOL_NODE_DISPLAY_NAME_MAPPINGS,
+}
 WEB_DIRECTORY = "./web"
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

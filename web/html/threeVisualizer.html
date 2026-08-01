@@ -35,10 +35,19 @@
                         min="-5"
                         max="5"
                         step="0.05"
-                        value="2"
+                        value="1.25"
                     >
-                    <output id="depth-value">2.00</output>
+                    <output id="depth-value">1.25</output>
                 </label>
+                <label>
+                    Quality
+                    <select id="mesh-quality">
+                        <option value="96">Fast</option>
+                        <option value="192" selected>Balanced</option>
+                        <option value="320">High</option>
+                    </select>
+                </label>
+                <label class="checkbox"><input id="wireframe" type="checkbox"> Wireframe</label>
                 <button id="reset-camera" type="button">Reset view</button>
                 <button id="screenshot" type="button">PNG</button>
                 <label>
@@ -53,6 +62,6 @@
             </section>
         </main>
 
-        <script type="module" src="../js/threeVisualizer.mjs"></script>
+        <script type="module" src="../js/threeVisualizer.mjs?v=3.0.0"></script>
     </body>
 </html>

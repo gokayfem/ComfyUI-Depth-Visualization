@@ -1,0 +1,19 @@
+{
+  "prompt": {
+    "1": {"class_type":"LoadImage","inputs":{"image":"NL52ydw04m1e3nXl_A7Xr_image.png"}},
+    "2": {"class_type":"DepthNormalize","inputs":{"depth_map":["1",0],"method":"Percentile","low":1.0,"high":99.0,"invert":false,"gamma":1.0}},
+    "3": {"class_type":"DepthCleanup","inputs":{"depth_map":["2",0],"hole_threshold":0.001,"fill_iterations":3,"median_radius":1,"preserve_edges":0.8}},
+    "4": {"class_type":"DepthColormap","inputs":{"depth_map":["3",0],"colormap":"turbo","invert":false,"show_invalid_magenta":true}},
+    "5": {"class_type":"DepthToNormal","inputs":{"depth_map":["3",0],"strength":2.0,"field_of_view":60.0,"convention":"OpenGL (+Y)","invert_depth":false}},
+    "6": {"class_type":"DepthRangeMask","inputs":{"depth_map":["3",0],"near":0.2,"far":0.8,"feather":0.04,"invert_depth":false}},
+    "7": {"class_type":"DepthStats","inputs":{"depth_map":["3",0],"bins":64}},
+    "8": {"class_type":"DepthParallaxFrames","inputs":{"image":["1",0],"depth_map":["3",0],"frames":8,"amplitude_px":24.0,"path":"ellipse","loop":true,"depth_center":0.5}},
+    "9": {"class_type":"DepthViewer","inputs":{"reference_image":["1",0],"depth_map":["3",0]}},
+    "10": {"class_type":"DepthToPointCloud","inputs":{"depth_map":["3",0],"field_of_view":60.0,"depth_scale":1.0,"stride":8,"drop_zero_depth":true,"filename_prefix":"depth_exports/showcase_cloud","color_image":["1",0]}},
+    "11": {"class_type":"DepthToMesh","inputs":{"depth_map":["3",0],"field_of_view":60.0,"depth_scale":1.0,"stride":8,"max_edge_length":0.2,"filename_prefix":"depth_exports/showcase_mesh","color_image":["1",0]}},
+    "12": {"class_type":"PreviewImage","inputs":{"images":["4",0]}},
+    "13": {"class_type":"PreviewImage","inputs":{"images":["5",0]}},
+    "14": {"class_type":"PreviewImage","inputs":{"images":["7",1]}},
+    "15": {"class_type":"PreviewImage","inputs":{"images":["8",0]}}
+  }
+}
